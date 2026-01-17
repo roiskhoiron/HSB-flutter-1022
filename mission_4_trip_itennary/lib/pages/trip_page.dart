@@ -14,43 +14,78 @@ class _TripPageState extends State<TripPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trip JSON Demo')),
+      appBar: AppBar(
+        title: const Text('Trip Serialization'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Tombol di bawah ini akan:\n'
-              '1. Membuat object Trip\n'
-              '2. Mengubahnya ke JSON\n'
-              '3. Mengubah JSON kembali ke object',
-            ),
-            const SizedBox(height: 16),
+            // ===== MANUAL =====
             ElevatedButton(
               onPressed: () {
-                // Membuat object Trip di memori
                 final trip = Trip(
                   namaTrip: 'LIBURAN JEPANG 2026',
                   tanggalMulai: '12 Januari 2026',
                   tanggalAkhir: '28 Januari 2026',
                 );
 
-                // Mengubah object ke JSON
-                final json = trip.toJson();
+                // Ubah object ke JSON secara manual
+                final json = trip.toJsonManual();
 
-                // Mengubah JSON kembali ke object
-                final tripFromJson = Trip.fromJson(json);
+                // Ambil kembali JSON menjadi object
+                final obj = Trip.fromJsonManual(json);
 
                 setState(() {
                   output =
-                      'JSON:\n$json\n\nObject:\n${tripFromJson.namaTrip}';
+                      'Tombol ini menjalankan SERIALISASI MANUAL.\n\n'
+                      'Object → JSON:\n$json\n\n'
+                      'JSON → Object:\n'
+                      'Nama Trip: ${obj.namaTrip}\n'
+                      'Tanggal Mulai: ${obj.tanggalMulai}\n'
+                      'Tanggal Akhir: ${obj.tanggalAkhir}';
                 });
               },
-              child: const Text('RUN TRIP SERIALIZATION'),
+              child: const Text('RUN MANUAL'),
             ),
+
+            const SizedBox(height: 12),
+
+            // ===== AUTO =====
+            ElevatedButton(
+              onPressed: () {
+                final trip = Trip(
+                  namaTrip: 'LIBURAN JEPANG 2026',
+                  tanggalMulai: '12 Januari 2026',
+                  tanggalAkhir: '28 Januari 2026',
+                );
+
+                // json_serializable mengubah object otomatis
+                final json = trip.toJson();
+                final obj = Trip.fromJson(json);
+
+                setState(() {
+                  output =
+                      'Tombol ini menjalankan SERIALISASI OTOMATIS.\n\n'
+                      'json_serializable bertindak sebagai translator\n'
+                      'antara Object di memori dan JSON (teks).\n\n'
+                      'Hasil Object:\n'
+                      'Nama Trip: ${obj.namaTrip}\n'
+                      'Tanggal Mulai: ${obj.tanggalMulai}\n'
+                      'Tanggal Akhir: ${obj.tanggalAkhir}';
+                });
+              },
+              child: const Text('RUN AUTO'),
+            ),
+
             const SizedBox(height: 16),
-            Text(output),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(output),
+              ),
+            ),
           ],
         ),
       ),
