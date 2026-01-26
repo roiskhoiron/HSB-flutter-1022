@@ -1,58 +1,35 @@
 import 'package:flutter/material.dart';
+import '../../styles/app_color.dart';
+import '../../widgets/wanderly_logo.dart';
+import '../../widgets/home_indicator.dart';
 
+// Halaman Home / Dashboard (Placeholder)
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: colors.background,
       body: Column(
         children: [
-          const SizedBox(height: 64),
-
-          Image.asset(
-            'assets/image/auth/wanderly_logo.png',
-            width: 297,
-            height: 198,
-          ),
-
+          const Spacer(),
+          const WanderlyLogo(),
           const SizedBox(height: 16),
-
-          Text(
-            'Home/Dashboard Screen',
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black,
-              fontSize: 18,
-            ),
-          ),
-
+          const Text('Home / Dashboard Screen'),
           const Spacer(),
 
           // Bottom Navigation Placeholder
           Container(
-            height: 70,
-            width: double.infinity,
+            height: 60,
             color: isDark ? Colors.black : Colors.white,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(Icons.home, color: Color(0xFF2F4BB9)),
-                    Icon(Icons.search, color: Color(0xFF2F4BB9)),
-                    Icon(Icons.map, color: Color(0xFF2F4BB9)),
-                    Icon(Icons.person, color: Color(0xFF2F4BB9)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 134,
-                  height: 5,
-                  color: const Color(0xFF2F4BB9),
-                ),
+              children: const [
+                Spacer(),
+                HomeIndicator(),
               ],
             ),
           ),

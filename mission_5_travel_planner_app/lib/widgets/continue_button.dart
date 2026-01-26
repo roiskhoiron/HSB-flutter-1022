@@ -1,33 +1,51 @@
 import 'package:flutter/material.dart';
+import '../styles/app_color.dart';
 
-class GoogleButton extends StatelessWidget {
+// Tombol umum untuk Continue, Google, dan Apple
+class ContinueButton extends StatelessWidget {
   final String text;
+  final String? iconPath;
+  final VoidCallback? onPressed;
 
-  const GoogleButton({super.key, required this.text});
+  const ContinueButton({
+    super.key,
+    required this.text,
+    this.iconPath,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return SizedBox(
-      height: 52,
+      width: 327,
+      height: 40,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: const BorderSide(color: Colors.red),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.black
+              : Colors.grey.shade300,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           elevation: 0,
         ),
-        onPressed: () {},
+        onPressed: onPressed,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/image/auth/google_logo.png", width: 33, height: 33),
+            if (iconPath != null) ...[
+              Image.asset(iconPath!, width: 20, height: 20),
+              const SizedBox(width: 8),
+            ],
             Text(
               text,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 14,
+              ),
             ),
-            const SizedBox(width: 33),
           ],
         ),
       ),

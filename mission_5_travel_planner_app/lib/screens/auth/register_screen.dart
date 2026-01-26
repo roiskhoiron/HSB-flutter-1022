@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
+import '../../styles/app_color.dart';
+import '../../widgets/wanderly_logo.dart';
 
+// Halaman Register (Placeholder)
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = AppColors.of(context);
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/image/auth/wanderly_logo.png',
-              width: 297,
-              height: 198,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Register Screen',
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-          ],
-        ),
+      backgroundColor: colors.background,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          WanderlyLogo(),
+          SizedBox(height: 16),
+          Text('Register Screen'),
+        ],
       ),
     );
   }

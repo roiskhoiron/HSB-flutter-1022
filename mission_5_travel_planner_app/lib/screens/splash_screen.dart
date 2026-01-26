@@ -1,91 +1,88 @@
 import 'package:flutter/material.dart';
-import '../routes/app_routes.dart';
 
+import '../routes/app_routes.dart';
+import '../styles/app_color.dart';
+import '../styles/app_fontstyle.dart';
+import '../widgets/wanderly_logo.dart';
+import '../widgets/home_indicator.dart';
+
+// Halaman Splash Screen
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-
-            // Logo Wanderly
-            Image.asset(
-              'assets/image/auth/wanderly_logo.png',
-              width: 297,
-              height: 198,
+      backgroundColor: colors.background,
+      body: Stack(
+        children: [
+          // LOGO – POSISI ABSOLUT (ANTI KETIMPA)
+          Positioned(
+            top: 80, // geser dari atas (aman dari box)
+            left: 0,
+            right: 0,
+            child: const Center(
+              child: WanderlyLogo(),
             ),
+          ),
 
-            const Spacer(),
-
-            // Kotak utama splash
-            Container(
+          // BOX PUTIH / HITAM BAWAH
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
               width: double.infinity,
               height: 355,
-              margin: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
                 color: isDark ? Colors.black : Colors.white,
-                borderRadius: BorderRadius.circular(69),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(69),
+                  topRight: Radius.circular(69),
+                ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Text slogan
-                  Text(
-                    'Explore the world effortlessly',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
+                  SizedBox(
+                    width: 300,
+                    child: Text(
+                      'Explore the world effortlessly',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.splashTagline(context),
                     ),
                   ),
-                  const SizedBox(height: 16),
 
-                  // Icon Arrow
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_circle_right,
-                      size: 40,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    onPressed: () {
-                      // Navigasi ke Login Screen
+                  const SizedBox(height: 24),
+
+                  GestureDetector(
+                    onTap: () {
+                      // Navigasi ke Login Screen menggunakan Named Routes
                       Navigator.pushReplacementNamed(
                         context,
                         AppRoutes.login,
                       );
                     },
+                    child: Icon(
+                      Icons.arrow_circle_right_outlined,
+                      size: 71,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                 ],
               ),
             ),
+          ),
 
-            const Spacer(),
-
-            // Home Indicator
-            Container(
-              height: 34,
-              width: double.infinity,
-              color: const Color(0xFF2F4BB9),
-              alignment: Alignment.center,
-              child: Container(
-                width: 134,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.black : Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
-        ),
+          // HOME INDICATOR – FIX DI BAWAH LAYAR
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: HomeIndicator(),
+          ),
+        ],
       ),
     );
   }

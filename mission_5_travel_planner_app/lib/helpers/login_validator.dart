@@ -1,21 +1,18 @@
 class LoginValidator {
-  static String? validateUsername(String value) {
-    if (value.isEmpty) {
-      return "Username cannot be empty";
+  // Validasi email: tidak kosong dan format email sederhana
+  static String? validateEmail(String value) {
+    // Pastikan field tidak kosong
+    if (value.trim().isEmpty) {
+      return 'Email tidak boleh kosong';
     }
-    if (value.length < 3) {
-      return "Username must be at least 3 characters";
-    }
-    return null;
-  }
 
-  static String? validatePassword(String value) {
-    if (value.isEmpty) {
-      return "Password cannot be empty";
+    // Regex sederhana untuk validasi email
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Format email tidak valid';
     }
-    if (value.length < 6) {
-      return "Password must be at least 6 characters";
-    }
+
+    // Jika lolos validasi
     return null;
   }
 }
