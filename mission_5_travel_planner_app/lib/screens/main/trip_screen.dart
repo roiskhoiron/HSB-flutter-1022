@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../helpers/label_from_icon.dart';
+
 import '../../widgets/wanderly_logo.dart';
 import '../../widgets/search_bar.dart';
 import '../../widgets/trip_item.dart';
@@ -147,7 +149,7 @@ class _TripScreenState extends State<TripScreen> {
                           for (final icon in trip['activities'])
                             SquareIcon(
                               icon: icon,
-                              label: _labelFromIcon(icon),
+                              label: labelFromIcon(icon),
                             ),
                         ],
                       ),
@@ -160,25 +162,5 @@ class _TripScreenState extends State<TripScreen> {
         ),
       ),
     );
-  }
-
-  /// Helper: mapping icon → label
-  String _labelFromIcon(IconData icon) {
-    switch (icon) {
-      case Icons.camera_alt:
-        return 'Sightseeing';
-      case Icons.restaurant:
-        return 'Restaurant';
-      case Icons.nightlife:
-        return 'Nightlife';
-      case Icons.hotel:
-        return 'Hotel';
-      case Icons.shopping_bag:
-        return 'Shopping';
-      case Icons.movie:
-        return 'Cinema';
-      default:
-        return '';
-    }
   }
 }
