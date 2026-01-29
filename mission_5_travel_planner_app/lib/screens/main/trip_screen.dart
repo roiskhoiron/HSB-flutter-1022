@@ -16,21 +16,31 @@ class TripScreen extends StatefulWidget {
 
 class _TripScreenState extends State<TripScreen> {
   final TextEditingController _controller = TextEditingController();
+  String _keyword = '';
 
+  /// NOTE:
+  /// Setiap trip SEKARANG punya `activities`
+  /// Ini kunci supaya hasil edit tidak hilang
   final List<Map<String, dynamic>> _trips = [
     {
       'title': 'Dramatic limestone island',
       'subtitle': 'Halong Bay, Vietnam',
       'image': 'assets/image/search/halong_bay.png',
+      'activities': <IconData>{
+        Icons.camera_alt,
+        Icons.restaurant,
+      },
     },
     {
       'title': 'The Iconic White and Blue',
       'subtitle': 'Santorini, Greece',
       'image': 'assets/image/search/santorini.png',
+      'activities': <IconData>{
+        Icons.camera_alt,
+        Icons.hotel,
+      },
     },
   ];
-
-  String _keyword = '';
 
   void _confirmDelete(String title, int index) {
     showDialog(
@@ -61,7 +71,6 @@ class _TripScreenState extends State<TripScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final filteredTrips = _trips.where((trip) {
       final q = _keyword.toLowerCase();
       return trip['title'].toLowerCase().contains(q) ||
@@ -102,29 +111,44 @@ class _TripScreenState extends State<TripScreen> {
                     subtitle: trip['subtitle'],
                     imagePath: trip['image'],
                     showActions: true,
-                    onEdit: () {
-                      Navigator.push(
+
+                    /// EDIT → buka InputFormScreen
+                    /// dan TERIMA hasilnya
+                    onEdit: () async {
+                      final result = await Navigator.push<Set<IconData>>(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const InputFormScreen(),
+                          builder: (_) => InputFormScreen(
+                            initialActivities:
+                                Set<IconData>.from(trip['activities']),
+                          ),
                         ),
                       );
+
+                      if (result != null) {
+                        setState(() {
+                          trip['activities'] = result;
+                        });
+                      }
                     },
+
                     onDelete: () {
                       _confirmDelete(trip['title'], index);
                     },
+
+                    /// ICON DI BAWAH TRIP
+                    /// sekarang DINAMIS sesuai hasil edit
                     bottomWidget: Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: Wrap(
                         spacing: 12,
                         runSpacing: 12,
-                        children: const [
-                          SquareIcon(icon: Icons.camera_alt, label: 'Sightseeing'),
-                          SquareIcon(icon: Icons.restaurant, label: 'Restaurant'),
-                          SquareIcon(icon: Icons.nightlife, label: 'Nightlife'),
-                          SquareIcon(icon: Icons.hotel, label: 'Hotel'),
-                          SquareIcon(icon: Icons.shopping_bag, label: 'Shopping'),
-                          SquareIcon(icon: Icons.movie, label: 'Cinema'),
+                        children: [
+                          for (final icon in trip['activities'])
+                            SquareIcon(
+                              icon: icon,
+                              label: _labelFromIcon(icon),
+                            ),
                         ],
                       ),
                     ),
@@ -136,5 +160,25 @@ class _TripScreenState extends State<TripScreen> {
         ),
       ),
     );
+  }
+
+  /// Helper: mapping icon → label
+  String _labelFromIcon(IconData icon) {
+    switch (icon) {
+      case Icons.camera_alt:
+        return 'Sightseeing';
+      case Icons.restaurant:
+        return 'Restaurant';
+      case Icons.nightlife:
+        return 'Nightlife';
+      case Icons.hotel:
+        return 'Hotel';
+      case Icons.shopping_bag:
+        return 'Shopping';
+      case Icons.movie:
+        return 'Cinema';
+      default:
+        return '';
+    }
   }
 }

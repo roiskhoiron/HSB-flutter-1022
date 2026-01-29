@@ -19,7 +19,7 @@ class WanderlyApp extends StatefulWidget {
 class _WanderlyAppState extends State<WanderlyApp> {
   // Mengatur mode tema (default Light Mode)
   // Ubah nilai awal ini jika ingin langsung Dark Mode
-  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode _themeMode = ThemeMode.light;
 
   // Method untuk toggle Light / Dark Mode
   void toggleTheme(bool isDark) {
