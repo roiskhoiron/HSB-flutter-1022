@@ -9,10 +9,12 @@ import '../../widgets/save_button.dart';
 
 class InputFormScreen extends StatefulWidget {
   final Set<IconData> initialActivities;
+  final bool isEdit;
 
   const InputFormScreen({
     super.key,
     required this.initialActivities,
+    required this.isEdit,
   });
 
   @override
@@ -74,8 +76,7 @@ class _InputFormScreenState extends State<InputFormScreen> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding:
-                    EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Wrap(
                   spacing: 16,
                   runSpacing: 16,
@@ -95,7 +96,9 @@ class _InputFormScreenState extends State<InputFormScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: SaveButton(
-                label: 'Simpan Perubahan',
+                label: widget.isEdit
+                    ? 'Simpan Perubahan'
+                    : 'Simpan Data Baru',
                 onPressed: () {
                   Navigator.pop(context, selectedActivities);
                 },

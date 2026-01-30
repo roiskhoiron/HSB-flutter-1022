@@ -6,8 +6,10 @@ import '../../widgets/wanderly_logo.dart';
 import '../../widgets/search_bar.dart';
 import '../../widgets/trip_item.dart';
 import '../../widgets/square_icon.dart';
+import '../../widgets/save_button.dart';
 
 import '../crud/input_form_screen.dart';
+import '../crud/detail_trip_screen.dart';
 
 class TripScreen extends StatefulWidget {
   const TripScreen({super.key});
@@ -20,9 +22,6 @@ class _TripScreenState extends State<TripScreen> {
   final TextEditingController _controller = TextEditingController();
   String _keyword = '';
 
-  /// NOTE:
-  /// Setiap trip SEKARANG punya `activities`
-  /// Ini kunci supaya hasil edit tidak hilang
   final List<Map<String, dynamic>> _trips = [
     {
       'title': 'Dramatic limestone island',
@@ -71,6 +70,29 @@ class _TripScreenState extends State<TripScreen> {
     );
   }
 
+  Future<void> _createTrip() async {
+    final result = await Navigator.push<Set<IconData>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const InputFormScreen(
+          initialActivities: {},
+          isEdit: false,
+        ),
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        _trips.add({
+          'title': 'New Trip',
+          'subtitle': 'Custom location',
+          'image': 'assets/image/search/halong_bay.png',
+          'activities': result,
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredTrips = _trips.where((trip) {
@@ -80,86 +102,109 @@ class _TripScreenState extends State<TripScreen> {
     }).toList();
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 16),
-            const Center(child: WanderlyLogo()),
-            const SizedBox(height: 32),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                const Center(child: WanderlyLogo()),
+                const SizedBox(height: 32),
 
-            WanderlySearchBar(
-              controller: _controller,
-              placeholder: 'Search your saved destination',
-              onChanged: (value) {
-                setState(() {
-                  _keyword = value;
-                });
+                WanderlySearchBar(
+                  controller: _controller,
+                  placeholder: 'Search your saved destination',
+                  onChanged: (value) {
+                    setState(() {
+                      _keyword = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: filteredTrips.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final trip = filteredTrips[index];
+
+                return TripItem(
+                  title: trip['title'],
+                  subtitle: trip['subtitle'],
+                  imagePath: trip['image'],
+                  showActions: true,
+
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailTripScreen(
+                          title: trip['title'],
+                          subtitle: trip['subtitle'],
+                          imagePath: trip['image'],
+                        ),
+                      ),
+                    );
+                  },
+
+                  onEdit: () async {
+                    final result = await Navigator.push<Set<IconData>>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InputFormScreen(
+                          initialActivities:
+                              Set<IconData>.from(trip['activities']),
+                          isEdit: true,
+                        ),
+                      ),
+                    );
+
+                    if (result != null) {
+                      setState(() {
+                        trip['activities'] = result;
+                      });
+                    }
+                  },
+
+                  onDelete: () {
+                    _confirmDelete(trip['title'], index);
+                  },
+
+                  bottomWidget: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        for (final icon in trip['activities'])
+                          SquareIcon(
+                            icon: icon,
+                            label: labelFromIcon(icon),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
               },
             ),
+          ),
 
-            const SizedBox(height: 24),
-
-            Expanded(
-              child: ListView.separated(
-                itemCount: filteredTrips.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final trip = filteredTrips[index];
-
-                  return TripItem(
-                    title: trip['title'],
-                    subtitle: trip['subtitle'],
-                    imagePath: trip['image'],
-                    showActions: true,
-
-                    /// EDIT → buka InputFormScreen
-                    /// dan TERIMA hasilnya
-                    onEdit: () async {
-                      final result = await Navigator.push<Set<IconData>>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InputFormScreen(
-                            initialActivities:
-                                Set<IconData>.from(trip['activities']),
-                          ),
-                        ),
-                      );
-
-                      if (result != null) {
-                        setState(() {
-                          trip['activities'] = result;
-                        });
-                      }
-                    },
-
-                    onDelete: () {
-                      _confirmDelete(trip['title'], index);
-                    },
-
-                    /// ICON DI BAWAH TRIP
-                    /// sekarang DINAMIS sesuai hasil edit
-                    bottomWidget: Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          for (final icon in trip['activities'])
-                            SquareIcon(
-                              icon: icon,
-                              label: labelFromIcon(icon),
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+          // ===== TOMBOL TAMBAH AKTIVITAS =====
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: SaveButton(
+              label: 'Tambah Aktivitas',
+              onPressed: _createTrip,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

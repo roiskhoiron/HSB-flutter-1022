@@ -1,30 +1,112 @@
 import 'package:flutter/material.dart';
-import '../../widgets/wanderly_logo.dart';
+
 import '../../styles/app_color.dart';
 
 class DetailTripScreen extends StatelessWidget {
-  const DetailTripScreen({super.key});
+  final String title;
+  final String subtitle;
+  final String imagePath;
+
+  const DetailTripScreen({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ===== IMAGE HEADER =====
+            Stack(
+              children: [
+                Image.asset(
+                  imagePath,
+                  width: double.infinity,
+                  height: 380,
+                  fit: BoxFit.cover,
+                ),
+
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: 33,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+
+                Positioned(
+                  left: 16,
+                  bottom: 24,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Urbanist',
+                          fontSize: 36,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontFamily: 'Urbanist',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 24),
-            const Center(child: WanderlyLogo()),
-            const SizedBox(height: 24),
-            Center(
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Detail Trip Screen',
+                'Detail',
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
+                  fontFamily: 'Urbanist',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                style: TextStyle(
+                  fontFamily: 'Urbanist',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
             ),

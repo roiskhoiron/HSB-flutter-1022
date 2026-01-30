@@ -90,7 +90,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const DetailTripScreen(),
+                          // builder: (_) => const DetailTripScreen(),
+                          builder: (_) => DetailTripScreen(
+                            title: trip['title']!,
+                            subtitle: trip['subtitle']!,
+                            imagePath: trip['image']!,
+                          ),
                         ),
                       );
                     },
