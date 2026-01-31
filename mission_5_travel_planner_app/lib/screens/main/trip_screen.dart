@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../models/trip_model.dart';
-
 import '../../services/trip_service.dart';
 
 import '../../helpers/label_from_icon.dart';
@@ -13,6 +12,7 @@ import '../../widgets/square_icon.dart';
 import '../../widgets/save_button.dart';
 
 import '../crud/input_form_screen.dart';
+import '../crud/choose_trip_screen.dart';
 import '../crud/detail_trip_screen.dart';
 
 class TripScreen extends StatefulWidget {
@@ -31,9 +31,9 @@ class _TripScreenState extends State<TripScreen> {
   void _confirmDelete(String title, int index) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Konfirmasi'),
-        content: Text('Kamu yakin ingin menghapus rencana perjalanan ke "$title"?'),
+        content: Text('Hapus rencana perjalanan ke "$title"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -41,7 +41,7 @@ class _TripScreenState extends State<TripScreen> {
           ),
           TextButton(
             onPressed: () {
-              setState(() => _trips.removeAt(index));
+              setState(() => TripService.deleteTrip(index));
               Navigator.pop(context);
             },
             child: const Text('Ya'),
@@ -49,31 +49,6 @@ class _TripScreenState extends State<TripScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _createTrip() async {
-    final result = await Navigator.push<Set<IconData>>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const InputFormScreen(
-          initialActivities: {},
-          isEdit: false,
-        ),
-      ),
-    );
-
-    if (result != null && result.isNotEmpty) {
-      setState(() {
-        _trips.add(
-          Trip(
-            title: 'New Trip',
-            subtitle: 'Custom location',
-            image: 'assets/image/search/halong_bay.png',
-            activities: result,
-          ),
-        );
-      });
-    }
   }
 
   @override
@@ -85,103 +60,128 @@ class _TripScreenState extends State<TripScreen> {
     }).toList();
 
     return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                const Center(child: WanderlyLogo()),
-                const SizedBox(height: 32),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            // ===== HEADER =====
+            const SizedBox(height: 16),
+            const Center(child: WanderlyLogo()),
+            const SizedBox(height: 32),
 
-                WanderlySearchBar(
-                  controller: _controller,
-                  placeholder: 'Search your saved destination',
-                  onChanged: (value) {
-                    setState(() => _keyword = value);
-                  },
-                ),
-
-                const SizedBox(height: 24),
-              ],
+            WanderlySearchBar(
+              controller: _controller,
+              placeholder: 'Search your saved destination',
+              onChanged: (value) {
+                setState(() => _keyword = value);
+              },
             ),
-          ),
 
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: filteredTrips.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final trip = filteredTrips[index];
+            const SizedBox(height: 24),
 
-                return TripItem(
-                  title: trip.title,
-                  subtitle: trip.subtitle,
-                  imagePath: trip.image,
-                  showActions: true,
+            // ===== LIST =====
+            Expanded(
+              child: filteredTrips.isEmpty
+                  ? ListView(
+                      children: const [
+                        SizedBox(height: 8),
+                        TripItem(
+                          title: 'Belum ada rencana perjalanan...',
+                          subtitle:
+                              'Klik button di bawah untuk menambahkan rencana liburan baru.',
+                          leadingIcon: Icons.flight_takeoff,
+                        ),
+                      ],
+                    )
+                  : ListView.separated(
+                      itemCount: filteredTrips.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final trip = filteredTrips[index];
 
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailTripScreen(
+                        return TripItem(
                           title: trip.title,
                           subtitle: trip.subtitle,
                           imagePath: trip.image,
-                        ),
-                      ),
-                    );
-                  },
+                          showActions: true,
 
-                  onEdit: () async {
-                    final result = await Navigator.push<Set<IconData>>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InputFormScreen(
-                          initialActivities: trip.activities,
-                          isEdit: true,
-                        ),
-                      ),
-                    );
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DetailTripScreen(
+                                  title: trip.title,
+                                  subtitle: trip.subtitle,
+                                  imagePath: trip.image,
+                                ),
+                              ),
+                            );
+                          },
 
-                    if (result != null) {
-                      setState(() => trip.activities = result);
-                    }
-                  },
+                          onEdit: () async {
+                            final result =
+                                await Navigator.push<Set<IconData>>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => InputFormScreen(
+                                  initialActivities: trip.activities,
+                                  isEdit: true,
+                                ),
+                              ),
+                            );
 
-                  onDelete: () {
-                    _confirmDelete(trip.title, index);
-                  },
+                            if (result != null) {
+                              setState(() {
+                                TripService.updateActivities(index, result);
+                              });
+                            }
+                          },
 
-                  bottomWidget: Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        for (final icon in trip.activities)
-                          SquareIcon(
-                            icon: icon,
-                            label: labelFromIcon(icon),
+                          onDelete: () =>
+                              _confirmDelete(trip.title, index),
+
+                          bottomWidget: Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              children: [
+                                for (final icon in trip.activities)
+                                  SquareIcon(
+                                    icon: icon,
+                                    label: labelFromIcon(icon),
+                                  ),
+                              ],
+                            ),
                           ),
-                      ],
+                        );
+                      },
                     ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // ===== BUTTON =====
+            SaveButton(
+              label: 'Tambah Rencana Baru',
+              onPressed: () async {
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ChooseTripScreen(),
                   ),
                 );
+
+                if (result == true) {
+                  setState(() {});
+                }
               },
             ),
-          ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: SaveButton(
-              label: 'Tambah Aktivitas',
-              onPressed: _createTrip,
-            ),
-          ),
-        ],
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
