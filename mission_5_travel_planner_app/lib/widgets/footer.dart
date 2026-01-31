@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../styles/app_fontstyle.dart';
+
 class Footer extends StatelessWidget {
   const Footer({super.key});
 
@@ -15,6 +17,7 @@ class Footer extends StatelessWidget {
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // ===== LOGO =====
           Image.asset(
@@ -27,39 +30,39 @@ class Footer extends StatelessWidget {
           const SizedBox(height: 16),
 
           // ===== TAGLINE =====
-          const Text(
+          Text(
             'Enjoy your trip with glorious serve from harijumat.co!',
-            style: TextStyle(
-              fontFamily: 'Urbanist',
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            style: AppFonts.base(
+              engine: FontEngine.urbanist,
+              size: 20,
+              weight: FontWeight.w700, // Bold
               color: Colors.black,
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // ===== ALAMAT =====
-          const Text(
+          // ===== ADDRESS =====
+          Text(
             'Jl. Raya Pajajaran No.88, Kel. Tanah Sareal, '
             'Kec. Bogor Tengah, Kota Bogor, Jawa Barat, 16127, Indonesia',
-            style: TextStyle(
-              fontFamily: 'Urbanist',
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
+            style: AppFonts.base(
+              engine: FontEngine.urbanist,
+              size: 16,
+              weight: FontWeight.w400,
               color: Colors.black,
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // ===== TELP =====
-          const Text(
+          // ===== PHONE =====
+          Text(
             '+62-891827-23293',
-            style: TextStyle(
-              fontFamily: 'Urbanist',
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
+            style: AppFonts.base(
+              engine: FontEngine.urbanist,
+              size: 16,
+              weight: FontWeight.w400,
               color: Colors.black,
             ),
           ),
@@ -67,12 +70,12 @@ class Footer extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ===== PERUSAHAAN =====
-          _FooterLink(title: 'Perusahaan'),
+          const _FooterLink(title: 'Perusahaan'),
 
           const SizedBox(height: 12),
 
           // ===== KOMUNITAS =====
-          _FooterLink(title: 'Komunitas'),
+          const _FooterLink(title: 'Komunitas'),
 
           const SizedBox(height: 16),
 
@@ -87,15 +90,14 @@ class Footer extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // ===== SOSMED =====
+          // ===== SOCIAL ICONS =====
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: const [
-              _SocialIcon(icon: Icons.work),
+              _SocialIcon(icon: Icons.work), // LinkedIn
               SizedBox(width: 16),
-              _SocialIcon(icon: Icons.camera_alt), // Instagram placeholder
+              _SocialIcon(icon: Icons.camera_alt), // Instagram
               SizedBox(width: 16),
-              _SocialIcon(icon: Icons.close), // Twitter/X placeholder
+              _SocialIcon(icon: Icons.close), // Twitter / X
               SizedBox(width: 16),
               _SocialIcon(icon: Icons.facebook),
             ],
@@ -104,12 +106,12 @@ class Footer extends StatelessWidget {
           const SizedBox(height: 32),
 
           // ===== COPYRIGHT =====
-          const Text(
+          Text(
             '@2026 Kwetiau Siram All Rights Reserved',
-            style: TextStyle(
-              fontFamily: 'Urbanist',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            style: AppFonts.base(
+              engine: FontEngine.urbanist,
+              size: 16,
+              weight: FontWeight.w600, // SemiBold
               color: Colors.black,
             ),
           ),
@@ -119,7 +121,7 @@ class Footer extends StatelessWidget {
   }
 }
 
-// SUB WIDGETS
+// ===== SUB WIDGETS =====
 
 class _FooterLink extends StatelessWidget {
   final String title;
@@ -133,16 +135,16 @@ class _FooterLink extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              fontFamily: 'Urbanist',
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            style: AppFonts.base(
+              engine: FontEngine.urbanist,
+              size: 16,
+              weight: FontWeight.w700, // Bold
               color: Colors.black,
             ),
           ),
         ),
         const Icon(
-          Icons.arrow_forward_ios,
+          Icons.arrow_forward,
           size: 16,
           color: Colors.black,
         ),
@@ -168,8 +170,8 @@ class _SocialIcon extends StatelessWidget {
       ),
       child: Icon(
         icon,
-        color: Colors.black,
         size: 28,
+        color: Colors.black,
       ),
     );
   }

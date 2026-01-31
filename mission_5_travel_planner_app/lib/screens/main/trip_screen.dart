@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../models/trip_model.dart';
+
+import '../../services/trip_service.dart';
+
 import '../../helpers/label_from_icon.dart';
 
 import '../../widgets/wanderly_logo.dart';
@@ -22,35 +26,14 @@ class _TripScreenState extends State<TripScreen> {
   final TextEditingController _controller = TextEditingController();
   String _keyword = '';
 
-  final List<Map<String, dynamic>> _trips = [
-    {
-      'title': 'Dramatic limestone island',
-      'subtitle': 'Halong Bay, Vietnam',
-      'image': 'assets/image/search/halong_bay.png',
-      'activities': <IconData>{
-        Icons.camera_alt,
-        Icons.restaurant,
-      },
-    },
-    {
-      'title': 'The Iconic White and Blue',
-      'subtitle': 'Santorini, Greece',
-      'image': 'assets/image/search/santorini.png',
-      'activities': <IconData>{
-        Icons.camera_alt,
-        Icons.hotel,
-      },
-    },
-  ];
+  List<Trip> get _trips => TripService.savedTrips;
 
   void _confirmDelete(String title, int index) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Konfirmasi'),
-        content: Text(
-          'Kamu yakin ingin menghapus rencana perjalanan ke "$title"?',
-        ),
+        content: Text('Kamu yakin ingin menghapus rencana perjalanan ke "$title"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -58,9 +41,7 @@ class _TripScreenState extends State<TripScreen> {
           ),
           TextButton(
             onPressed: () {
-              setState(() {
-                _trips.removeAt(index);
-              });
+              setState(() => _trips.removeAt(index));
               Navigator.pop(context);
             },
             child: const Text('Ya'),
@@ -83,12 +64,14 @@ class _TripScreenState extends State<TripScreen> {
 
     if (result != null && result.isNotEmpty) {
       setState(() {
-        _trips.add({
-          'title': 'New Trip',
-          'subtitle': 'Custom location',
-          'image': 'assets/image/search/halong_bay.png',
-          'activities': result,
-        });
+        _trips.add(
+          Trip(
+            title: 'New Trip',
+            subtitle: 'Custom location',
+            image: 'assets/image/search/halong_bay.png',
+            activities: result,
+          ),
+        );
       });
     }
   }
@@ -97,8 +80,8 @@ class _TripScreenState extends State<TripScreen> {
   Widget build(BuildContext context) {
     final filteredTrips = _trips.where((trip) {
       final q = _keyword.toLowerCase();
-      return trip['title'].toLowerCase().contains(q) ||
-          trip['subtitle'].toLowerCase().contains(q);
+      return trip.title.toLowerCase().contains(q) ||
+          trip.subtitle.toLowerCase().contains(q);
     }).toList();
 
     return SafeArea(
@@ -116,9 +99,7 @@ class _TripScreenState extends State<TripScreen> {
                   controller: _controller,
                   placeholder: 'Search your saved destination',
                   onChanged: (value) {
-                    setState(() {
-                      _keyword = value;
-                    });
+                    setState(() => _keyword = value);
                   },
                 ),
 
@@ -136,9 +117,9 @@ class _TripScreenState extends State<TripScreen> {
                 final trip = filteredTrips[index];
 
                 return TripItem(
-                  title: trip['title'],
-                  subtitle: trip['subtitle'],
-                  imagePath: trip['image'],
+                  title: trip.title,
+                  subtitle: trip.subtitle,
+                  imagePath: trip.image,
                   showActions: true,
 
                   onTap: () {
@@ -146,9 +127,9 @@ class _TripScreenState extends State<TripScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => DetailTripScreen(
-                          title: trip['title'],
-                          subtitle: trip['subtitle'],
-                          imagePath: trip['image'],
+                          title: trip.title,
+                          subtitle: trip.subtitle,
+                          imagePath: trip.image,
                         ),
                       ),
                     );
@@ -159,22 +140,19 @@ class _TripScreenState extends State<TripScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => InputFormScreen(
-                          initialActivities:
-                              Set<IconData>.from(trip['activities']),
+                          initialActivities: trip.activities,
                           isEdit: true,
                         ),
                       ),
                     );
 
                     if (result != null) {
-                      setState(() {
-                        trip['activities'] = result;
-                      });
+                      setState(() => trip.activities = result);
                     }
                   },
 
                   onDelete: () {
-                    _confirmDelete(trip['title'], index);
+                    _confirmDelete(trip.title, index);
                   },
 
                   bottomWidget: Padding(
@@ -183,7 +161,7 @@ class _TripScreenState extends State<TripScreen> {
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        for (final icon in trip['activities'])
+                        for (final icon in trip.activities)
                           SquareIcon(
                             icon: icon,
                             label: labelFromIcon(icon),
@@ -196,7 +174,6 @@ class _TripScreenState extends State<TripScreen> {
             ),
           ),
 
-          // ===== TOMBOL TAMBAH AKTIVITAS =====
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: SaveButton(

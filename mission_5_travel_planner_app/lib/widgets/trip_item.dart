@@ -89,7 +89,7 @@ class TripItem extends StatelessWidget {
 
                 if (!showActions)
                   Icon(
-                    Icons.arrow_forward_ios,
+                    Icons.arrow_forward,
                     size: 16,
                     color: isDark ? Colors.white : Colors.black,
                   ),
@@ -320,7 +320,7 @@ class TripItem extends StatelessWidget {
 //               ),
 //             ),
 //             Icon(
-//               Icons.arrow_forward_ios,
+//               Icons.arrow_forward,
 //               size: 16,
 //               color: isDark ? Colors.white : Colors.black,
 //             ),
