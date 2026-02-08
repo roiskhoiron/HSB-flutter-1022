@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/trip_provider.dart';
-
 import '../../helpers/label_from_icon.dart';
 
 import '../../widgets/wanderly_logo.dart';
@@ -15,8 +14,8 @@ import '../crud/choose_trip_screen.dart';
 import '../crud/detail_trip_screen.dart';
 import '../crud/input_form_screen.dart';
 
-// Halaman utama untuk menampilkan daftar rencana perjalanan
-// UI hanya bertugas menampilkan data dari Provider (tanpa setState)
+// Halaman utama daftar rencana perjalanan
+// UI hanya membaca data dari Provider (tanpa setState untuk CRUD)
 class TripScreen extends ConsumerStatefulWidget {
   const TripScreen({super.key});
 
@@ -28,9 +27,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   final TextEditingController _controller = TextEditingController();
   String _keyword = '';
 
-  // Dialog konfirmasi hapus data
-  // Aksi hapus dijalankan melalui Riverpod Provider
-  void _confirmDelete(String title, int index) {
+  // Dialog konfirmasi hapus
+  void _confirmDelete(String title, int realIndex) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -43,12 +41,13 @@ class _TripScreenState extends ConsumerState<TripScreen> {
           ),
           TextButton(
             onPressed: () {
-              ref.read(tripProvider.notifier).deleteTrip(index);
+              ref.read(tripProvider.notifier).deleteTrip(realIndex);
               Navigator.pop(context);
 
-              // Notifikasi setelah data dihapus
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Rencana perjalanan dihapus')),
+                const SnackBar(
+                  content: Text('Rencana perjalanan dihapus'),
+                ),
               );
             },
             child: const Text('Ya'),
@@ -60,15 +59,13 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil state dari Riverpod
     final tripState = ref.watch(tripProvider);
 
-    // Tampilkan loading saat data masih diproses
     if (tripState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Filter data berdasarkan keyword pencarian
+    // Filter trip (UI concern)
     final filteredTrips = tripState.trips.where((trip) {
       final q = _keyword.toLowerCase();
       return trip.title.toLowerCase().contains(q) ||
@@ -80,12 +77,11 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            // ===== HEADER =====
             const SizedBox(height: 16),
             const Center(child: WanderlyLogo()),
             const SizedBox(height: 32),
 
-            // Search bar (UI state lokal, bukan data)
+            // Search
             WanderlySearchBar(
               controller: _controller,
               placeholder: 'Search your saved destination',
@@ -98,7 +94,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
             const SizedBox(height: 24),
 
-            // ===== LIST TRIP =====
+            // LIST TRIP
             Expanded(
               child: filteredTrips.isEmpty
                   ? ListView(
@@ -119,13 +115,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       itemBuilder: (context, index) {
                         final trip = filteredTrips[index];
 
+                        // INDEX ASLI DARI PROVIDER
+                        final realIndex =
+                            tripState.trips.indexOf(trip);
+
                         return TripItem(
                           title: trip.title,
                           subtitle: trip.subtitle,
                           imagePath: trip.image,
                           showActions: true,
 
-                          // Lihat detail trip
+                          // Detail
                           onTap: () {
                             Navigator.push(
                               context,
@@ -139,7 +139,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                             );
                           },
 
-                          // Edit aktivitas trip
+                          // Edit
                           onEdit: () async {
                             final result =
                                 await Navigator.push<Set<IconData>>(
@@ -156,18 +156,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                               final updatedTrip =
                                   trip.copyWithActivities(result);
 
-                              // Update data melalui Provider
                               ref
                                   .read(tripProvider.notifier)
-                                  .updateTrip(index, updatedTrip);
+                                  .updateTrip(realIndex, updatedTrip);
                             }
                           },
 
-                          // Hapus trip
+                          // Delete
                           onDelete: () =>
-                              _confirmDelete(trip.title, index),
+                              _confirmDelete(trip.title, realIndex),
 
-                          // Daftar aktivitas
+                          // Activities
                           bottomWidget: Padding(
                             padding: const EdgeInsets.only(top: 12),
                             child: Wrap(
@@ -189,7 +188,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
             const SizedBox(height: 12),
 
-            // ===== BUTTON TAMBAH =====
+            // BUTTON TAMBAH
             SaveButton(
               label: 'Tambah Rencana Baru',
               onPressed: () async {
@@ -199,7 +198,6 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     builder: (_) => const ChooseTripScreen(),
                   ),
                 );
-                // Tidak perlu setState, UI akan update otomatis
               },
             ),
 

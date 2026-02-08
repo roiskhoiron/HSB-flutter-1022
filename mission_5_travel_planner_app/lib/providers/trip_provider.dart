@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/legacy.dart';
 import '../models/trip_model.dart';
 import '../services/trip_service.dart';
 
-// State Trip (list + loading)
+// State Trip
+// Menyimpan daftar trip dan status loading
 class TripState {
   final List<Trip> trips;
   final bool isLoading;
@@ -13,6 +14,7 @@ class TripState {
     required this.isLoading,
   });
 
+  // Helper untuk update sebagian state
   TripState copyWith({
     List<Trip>? trips,
     bool? isLoading,
@@ -24,26 +26,35 @@ class TripState {
   }
 }
 
-// StateNotifier untuk mengelola CRUD Trip
+// StateNotifier untuk mengelola seluruh logika bisnis Trip
+// UI TIDAK BOLEH melakukan manipulasi data langsung
 class TripNotifier extends StateNotifier<TripState> {
-  TripNotifier()
-      : super(TripState(trips: [], isLoading: true)) {
+  TripNotifier() : super(TripState(trips: [], isLoading: true)) {
+    // Load data dari Hive saat provider pertama kali dibuat
     loadTrips();
   }
 
-  // Load awal dari Hive
+  // Load awal data dari Hive
+  // Aman jika database kosong
   void loadTrips() {
+    state = state.copyWith(isLoading: true);
+
     final data = TripService.loadTrips();
-    state = state.copyWith(trips: data, isLoading: false);
+
+    state = state.copyWith(
+      trips: data,
+      isLoading: false,
+    );
   }
 
-  // Tambah trip
+  // Tambah trip baru
+  // Data otomatis tersimpan ke Hive
   void addTrip(Trip trip) {
     TripService.addTrip(trip);
     loadTrips();
   }
 
-  // Update trip
+  // Update trip berdasarkan index
   void updateTrip(int index, Trip updatedTrip) {
     TripService.updateTrip(index, updatedTrip);
     loadTrips();
@@ -56,7 +67,8 @@ class TripNotifier extends StateNotifier<TripState> {
   }
 }
 
-// Provider global
+// Provider global Trip
+// UI hanya boleh watch & read provider ini
 final tripProvider =
     StateNotifierProvider<TripNotifier, TripState>((ref) {
   return TripNotifier();
